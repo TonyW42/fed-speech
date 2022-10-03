@@ -45,10 +45,14 @@ df = pd.DataFrame(
 
 def plot_tsne(color_by = "consumption"):
     my_plot = sns.scatterplot("x_0", "x_1", hue = color_by, data= df)
-    plt.show()
+    plt.save(f"figures/tsne_plot_by_{color_by}")
 
 if __name__ == "__main__":
-    plot_tsne()
+    plot_tsne(color_by = "consumption")
+    plot_tsne(color_by = "economic_activity")
+    plot_tsne(color_by = "inflation")
+    plot_tsne(color_by = "inflation_binary")
+    plot_tsne(color_by = "unemployment")
 
 
 
