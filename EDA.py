@@ -44,6 +44,7 @@ df = pd.DataFrame(
 )
 
 def plot_tsne(color_by = "consumption"):
+    plt.figure()
     my_plot = sns.scatterplot("x_0", "x_1", hue = color_by, data= df)
     plt.savefig(f"figures/tsne_plot_by_{color_by}")
 
