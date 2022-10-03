@@ -1,18 +1,20 @@
 from sentence_transformers import SentenceTransformer, util
 import pandas as pd 
+import numpy as np 
+from sklearn.manifold import TSNE
+from matplotlib import pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 speeches = pd.read_csv("data/speech_with_description.csv")
-speech   = speeches["text"].values
+# speech   = speeches["text"].values[1]
 
 embedding_model = SentenceTransformer("all-mpnet-base-v2")
 
 def sBERT_encode_all(speeches):
   encoded = []
   count = 0
-  tag = []
-  collapsed_tag = []
-  num_main_pred = []
-  group = []
+
   for i in range(0, speeches.shape[0]):
     text = speeches["text"].values[i]
     text_encoded = embedding_model.encode(text)
@@ -20,29 +22,33 @@ def sBERT_encode_all(speeches):
     ## append encoded
     encoded.append(text_encoded)
 
-    ## append tag
-    tag.append(samp["tag"])
-    tag.append(samp["tag"])
 
-    ## append collapse tag
-    collapsed_tag.append(samp["collapsed_tag"])
-    collapsed_tag.append(samp["collapsed_tag"])
-
-    ## append num_main_ored
-    num_main_pred.append(samp["num_main_preds"])
-    num_main_pred.append(samp["num_main_preds"])
-
-    ## append group category 
-    group.append(0)
-    group.append(1)
-
-
-
-    if count % 50 == 0: print(f"Finished {count} / {len(data)}")
+    if count % 50 == 0: print(f"Finished {count} / {speeches.shape[0]}")
     count += 1
-  return encoded, tag, collapsed_tag, num_main_pred
+  return encoded
 
-encoded_all, tag, collapsed_tag, num_main_pred = sBERT_encode_all(speech)
+encoded_all = sBERT_encode_all(speeches)
+encoded_df = np.array(encoded_all)
+
+transformed_embedding = TSNE(random_state = 42).fit_transform(encoded_df)
+
+df = pd.DataFrame(
+    dict(x_0 = transformed_embedding[:, 0], 
+         x_1 = transformed_embedding[:, 1], 
+         consumption = speeches["consumption"].values,
+         economic_activity = speeches["economic_activity"].values,
+         inflation = speeches["inflation"].values,
+         inflation_binary = speeches["inflation_binary"].values,
+         unemployment = speeches["unemployment"].values,
+         )
+)
+
+def plot_tsne(color_by = "consumption"):
+    my_plot = sns.scatterplot("x_0", "x_1", hue = color_by, data= df)
+    print(my_plot)
+
+if __name__ == "__main__":
+    my_plot()
 
 
 
