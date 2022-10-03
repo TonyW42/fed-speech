@@ -48,7 +48,7 @@ def plot_tsne(color_by = "consumption"):
     print(my_plot)
 
 if __name__ == "__main__":
-    my_plot()
+    plot_tsne()
 
 
 
