@@ -18,7 +18,7 @@ from nltk.translate.bleu_score import sentence_bleu, corpus_bleu, SmoothingFunct
 nltk.download('punkt')
 import statistics
 from sentence_transformers import SentenceTransformer, util
-from utils import load_model, save_model
+from utils import load_model, save_model, make_if_not_exists, setup_seed
 
 ## train model
 def format_time(elapsed):
@@ -26,6 +26,8 @@ def format_time(elapsed):
 
 def train(model, optimizer, train_dataloader, device, EPOCHS, ckpt_dir = None, load_model_path = None, start_epoch = 0):
   #model = model.to(device)
+  if ckpt_dir is not None : 
+    make_if_not_exists(ckpt_dir) ## added
   train_loss = []
   if load_model_path is not None:
     load_model(model, load_model_path, optimizer = optimizer)

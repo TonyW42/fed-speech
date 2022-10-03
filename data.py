@@ -164,5 +164,5 @@ def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_N
               batch_size = BS,
               # num_workers = NUM_WORKER 
           )
-  return train_dataloader, validation_dataloader
+  return train_dataset, val_dataset, train_dataloader, validation_dataloader
 

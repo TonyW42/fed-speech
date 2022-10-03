@@ -19,10 +19,11 @@ nltk.download('punkt')
 import statistics
 from sentence_transformers import SentenceTransformer, util
 import argparse
-from transformers import AutoModel, AutoTokenizer, AutoConfig, AdamW
+from transformers import AutoModel, AutoTokenizer, AutoConfig, AutoModelForCausalLM
 from data import load_data
 from train import train
-from utils import make_if_not_exists, setup_seed
+from utils import make_if_not_exists, setup_seed, load_model
+from evaluate_utils import semantic_similarity, macro_bleu_efficient
 
 if torch.cuda.is_available():
     device = "cuda"
@@ -91,10 +92,10 @@ configuration = AutoConfig.from_pretrained('gpt2', output_hidden_states=False,
                                            pad_token_id=tokenizer.pad_token_id)
 
 # ## load data 
-train_dataloader, test_dataloader = load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME)
+train_dataset, val_dataset, train_dataloader, test_dataloader = load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME)
 
 ## load model 
-model = AutoModel.from_pretrained("gpt2", config=configuration)
+model = AutoModelForCausalLM.from_pretrained("gpt2", config=configuration)
 model.resize_token_embeddings(len(tokenizer))
 model.to(device)
 
@@ -102,28 +103,37 @@ model.to(device)
 for parameter in model.parameters():
     parameter.requires_grad = False
 
-for i, m in enumerate(model.h):        
+for i, m in enumerate(model.base_model.h):        
     #Only un-freeze the last n transformer blocks
     if i+1 > 12 - UNFREEZE_LAYER:
         for parameter in m.parameters():
             parameter.requires_grad = True 
 
-for parameter in model.ln_f.parameters():        
+for parameter in model.base_model.ln_f.parameters():        
     parameter.requires_grad = True
 
-# for parameter in model.lm_head.parameters():        
-#     parameter.requires_grad = True
+for parameter in model.lm_head.parameters():        
+    parameter.requires_grad = True
 
 ## load optimizer 
 optimizer = torch.optim.AdamW(model.parameters(), lr = LR, eps = EPS)
 
-## load model 
+## load saved model
+if args.load_path is not None:
+    load_model(model, args.load_path) ## check this 
 
 ## train if mode == "train"
 if args.mode == "train":
     train(model = model, optimizer = optimizer, train_dataloader = train_dataloader,
           device = device, EPOCHS = EPOCHS, ckpt_dir = args.save_dir,
           load_model_path = args.load_path, start_epoch = args.start_epoch)
+
+## do evaluation 
+bleu_scores = macro_bleu_efficient(model, tokenizer, SPECIAL_TOKENS, device, val_dataset)
+similarity_scores = semantic_similarity(model, tokenizer, SPECIAL_TOKENS, device, val_dataset)
+
+## do something with these scores
+
 
 
 
