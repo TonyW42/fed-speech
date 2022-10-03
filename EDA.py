@@ -45,8 +45,7 @@ df = pd.DataFrame(
 
 def plot_tsne(color_by = "consumption"):
     my_plot = sns.scatterplot("x_0", "x_1", hue = color_by, data= df)
-    plt.show
-    my_plot.show()
+    plt.show()
 
 if __name__ == "__main__":
     plot_tsne()
