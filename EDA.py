@@ -45,10 +45,15 @@ df = pd.DataFrame(
 
 def plot_tsne(color_by = "consumption"):
     plt.figure()
-    my_plot = sns.scatterplot("x_0", "x_1", hue = color_by, data= df)
-    plt.savefig(f"figures/tsne_plot_by_{color_by}")
+    if color_by is not None:
+      my_plot = sns.scatterplot("x_0", "x_1", hue = color_by, data= df).set(title = f"Two-dimensional Representation for Speeches, colored by {color_by}")
+      plt.savefig(f"figures/tsne_plot_by_{color_by}")
+    else:
+      my_plot = sns.scatterplot("x_0", "x_1", data= df).set(title = f"Two-dimensional Representation for Speeches")
+      plt.savefig(f"figures/tsne_plot")
 
 if __name__ == "__main__":
+    plot_tsne(color_by = None)
     plot_tsne(color_by = "consumption")
     plot_tsne(color_by = "economic_activity")
     plot_tsne(color_by = "inflation")
