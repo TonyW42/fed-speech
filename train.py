@@ -55,7 +55,7 @@ def train(model, optimizer, train_dataloader, device, EPOCHS, ckpt_dir = None, l
                           return_dict = True
                         )
       loss = outputs["loss"]  
-      batch_loss = loss.detach.item()
+      batch_loss = loss.detach().item() ## detach or not? 
       total_train_loss += batch_loss
 
       loss.backward()
