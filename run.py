@@ -61,6 +61,8 @@ parser.add_argument('--preseqlen', type=int, default=5)
 args = parser.parse_args()
 optim_prefix_bool = True if args.optim_prefix == "yes" else False
 
+
+
 LR = args.lr
 TR_SIZE = args.tr_size
 MAXLEN = args.max_len                ## small for speeches
@@ -92,26 +94,24 @@ tokenizer = GPT2Tokenizer.from_pretrained('gpt2',
                                           sep_token=SPECIAL_TOKENS['sep_token'])
 
 
+
 ## load model
 configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False, 
                                            bos_token_id=tokenizer.bos_token_id,
                                            eos_token_id=tokenizer.eos_token_id,
                                            sep_token_id=tokenizer.sep_token_id,
                                            unk_token_id=tokenizer.unk_token_id,
-                                           pad_token_id=tokenizer.pad_token_id)
-
-# ## load data 
-train_dataset, val_dataset, train_dataloader, test_dataloader = load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME, args.prompt_type) ## change here 
+                                           pad_token_id=tokenizer.pad_token_id
+                                           )
 
 ## load model 
 model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
 model.resize_token_embeddings(len(tokenizer))
 model.to(device)
 
-## discrete prompting
-model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
-model.resize_token_embeddings(len(tokenizer))
-model.to(device)
+# ## load data 
+train_dataset, val_dataset, train_dataloader, test_dataloader = load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME, args.prompt_type) ## change here 
+
 if args.load_path is not None:
     load_model(model, ckpt_path = args.load_path)
     model.to(device)

@@ -127,16 +127,16 @@ def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_N
       description = self.data[idx]["description"]
       text = self.data[idx]["text"]
       if self.prompt_type == "sentence":
-        input = SPECIAL_TOKENS["bos_token"] + description + \
+        inputs = SPECIAL_TOKENS["bos_token"] + description + \
                   " Here is an excerpt from the speech: \n" + \
                   SPECIAL_TOKENS["sep_token"] + text + \
                   SPECIAL_TOKENS["eos_token"] 
       elif self.prompt_type == "word":
-        input = ""
+        inputs = ""
         for key in ["consumption", "economic activity", "inflation", "unemployment"]:
-          input += f"{key}: {self.data[idx][key]} "
-        input += SPECIAL_TOKENS["sep_token"] + text
-      input_dict = self.tokenizer(input, truncation=True, max_length = MAXLEN, 
+          inputs += f"{key}: {self.data[idx][key]} "
+        inputs += SPECIAL_TOKENS["sep_token"] + text
+      input_dict = self.tokenizer(inputs, truncation=True, max_length = MAXLEN, 
                                   padding = "max_length")
       input_ids = torch.tensor(input_dict['input_ids'])
       attn_masks = torch.tensor(input_dict['attention_mask'])
