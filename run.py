@@ -38,7 +38,7 @@ parser.add_argument('--seed', type=int, default=42)
 parser.add_argument('--log_dir', type=str, default=None)
 parser.add_argument('--output_dir', type=str, default="./results")
 parser.add_argument('--bs', type=int, default=16)
-parser.add_argument('--model_name', type=str, default="google/canine-s")
+# parser.add_argument('--model_name', type=str, default="google/canine-s")
 parser.add_argument('--n_epochs', type=int, default=1) ## change to 4
 parser.add_argument('--lr', type=float, default=5e-4)
 parser.add_argument('--eps', type=float, default=1e-8)
@@ -102,7 +102,7 @@ model.to(device)
 
 
 if args.load_path is not None:
-    model = load_model(model, ckpt_path = load_model)
+    model = load_model(model, ckpt_path = args.load_path)
     model.to(device)
 
 
