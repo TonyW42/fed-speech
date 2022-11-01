@@ -22,7 +22,7 @@ import argparse
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torch.utils.data import random_split
 # from run import TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME 
-def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME):
+def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME, prompt_method):
   ## load statements 
   data = dict()
   root_path = "data/statement"
@@ -53,7 +53,10 @@ def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_N
     for idx in range(0, speech_data.shape[0]):
       # result_tmp = []
       description = speech_data["description"].values[idx]
-      # result_tmp["description"] = description
+      consumption = speech_data["consumption"].values[idx]
+      economic_activity = speech_data["economic_activity"].values[idx]
+      inflation = speech_data["inflation"].values[idx]
+      unemployment = speech_data["unemployment"].values[idx]
 
       text = speech_data["text"].values[idx]
       text = tokenize.sent_tokenize(text)
@@ -75,7 +78,9 @@ def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_N
           count += 1
           # if (len(text[count].split(" ")) > 1000): print("problem!")
         text_tmp = ' '.join(text_tmp)
-        speech.append((description, text_tmp))
+        speech.append({"description": description, "text": text_tmp,
+                       "consumption" : consumption, "economic activity": economic_activity,
+                       "inflation": inflation, "unemployment": unemployment})
       # result_tmp["text"] = partitioned_text
       # speech.append(result_tmp)
       if idx % 100 == 0:
@@ -110,20 +115,27 @@ def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_N
 
   ## data class for speech 
   class speech_data(Dataset):
-    def __init__(self, data, tokenizer, randomize = True):
+    def __init__(self, data, tokenizer, prompt_method, randomize = True):
       self.tokenizer = tokenizer
       self.data = data
+      self.prompt_method = prompt_method
 
     def __len__(self):
       return(len(self.data))
     
     def __getitem__(self, idx):
-      description = self.data[idx][0]
-      text = self.data[idx][1]
-      input = SPECIAL_TOKENS["bos_token"] + description + \
-                " Here is an excerpt from the speech: \n" + \
-                SPECIAL_TOKENS["sep_token"] + text + \
-                SPECIAL_TOKENS["eos_token"]
+      description = self.data[idx]["description"]
+      text = self.data[idx]["text"]
+      if self.prompt_method == "discrete":
+        input = SPECIAL_TOKENS["bos_token"] + description + \
+                  " Here is an excerpt from the speech: \n" + \
+                  SPECIAL_TOKENS["sep_token"] + text + \
+                  SPECIAL_TOKENS["eos_token"] 
+      elif self.prompt_method == "prefix":
+        input = ""
+        for key in ["consumption", "economic activity", "inflation", "unemployment"]:
+          input += f"{key}: {self.data[idx][key]}"
+        input += SPECIAL_TOKENS["sep_token"] + text
       input_dict = self.tokenizer(input, truncation=True, max_length = MAXLEN, 
                                   padding = "max_length")
       input_ids = torch.tensor(input_dict['input_ids'])

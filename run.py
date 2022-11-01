@@ -100,7 +100,7 @@ configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False,
                                            pad_token_id=tokenizer.pad_token_id)
 
 # ## load data 
-train_dataset, val_dataset, train_dataloader, test_dataloader = load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME) ## change here 
+train_dataset, val_dataset, train_dataloader, test_dataloader = load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME, args.prompting_method) ## change here 
 
 ## load model 
 model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
