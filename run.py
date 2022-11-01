@@ -124,24 +124,26 @@ if args.prompting_method == "prefix":
         config = configuration, 
         model_gpt2 = model,
         optim_prefix=optim_prefix_bool,
-        preseqlen=args.preseqlen)
+        preseqlen=args.preseqlen,
+        ignore_mismatched_sizes=True     ## check on that
+        ) 
 
-
+if args.prompting_method == "discrete":
 ## freeze layers 
-for parameter in model.parameters():
-    parameter.requires_grad = False
+    for parameter in model.parameters():
+        parameter.requires_grad = False
 
-for i, m in enumerate(model.base_model.h):        
-    #Only un-freeze the last n transformer blocks
-    if i+1 > 12 - UNFREEZE_LAYER:
-        for parameter in m.parameters():
-            parameter.requires_grad = True 
+    for i, m in enumerate(model.base_model.h):        
+        #Only un-freeze the last n transformer blocks
+        if i+1 > 12 - UNFREEZE_LAYER:
+            for parameter in m.parameters():
+                parameter.requires_grad = True 
 
-for parameter in model.base_model.ln_f.parameters():        
-    parameter.requires_grad = True
+    for parameter in model.base_model.ln_f.parameters():        
+        parameter.requires_grad = True
 
-for parameter in model.lm_head.parameters():        
-    parameter.requires_grad = True
+    for parameter in model.lm_head.parameters():        
+        parameter.requires_grad = True
 
 ## load optimizer 
 optimizer = torch.optim.AdamW(model.parameters(), lr = LR, eps = EPS)
