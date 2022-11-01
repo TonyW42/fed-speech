@@ -24,6 +24,7 @@ from data import load_data
 from train import train
 from utils import make_if_not_exists, setup_seed, load_model
 from evaluate_utils import semantic_similarity, macro_bleu_efficient
+import statistics
 
 if torch.cuda.is_available():
     device = "cuda"
@@ -99,6 +100,12 @@ model = AutoModelForCausalLM.from_pretrained("gpt2", config=configuration)
 model.resize_token_embeddings(len(tokenizer))
 model.to(device)
 
+
+if args.load_path is not None:
+    model = load_model(model, ckpt_path = load_model)
+    model.to(device)
+
+
 ## freeze layers 
 for parameter in model.parameters():
     parameter.requires_grad = False
@@ -133,6 +140,14 @@ bleu_scores = macro_bleu_efficient(model, tokenizer, SPECIAL_TOKENS, device, val
 similarity_scores = semantic_similarity(model, tokenizer, SPECIAL_TOKENS, device, val_dataset)
 
 ## do something with these scores
+
+if __name__ == "__main__":
+    print(f"BLEU Score : {statistics.mean(bleu_scores)}")
+    print(f"Similarity Score : {statistics.mean(similarity_scores)}")
+    torch.save(torch.tensor(bleu_scores), "bleu.pt")
+    torch.save(torch.tensor(similarity_scores), "sim_score.pt")
+
+
 
 
 
