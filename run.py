@@ -26,6 +26,7 @@ from train import train
 from utils import make_if_not_exists, setup_seed, load_model
 from evaluate_utils import semantic_similarity, macro_bleu_efficient
 import statistics
+from models import *
 
 if torch.cuda.is_available():
     device = "cuda"
@@ -39,7 +40,7 @@ parser.add_argument('--seed', type=int, default=42)
 parser.add_argument('--log_dir', type=str, default=None)
 parser.add_argument('--output_dir', type=str, default="./results")
 parser.add_argument('--bs', type=int, default=16)
-# parser.add_argument('--model_name', type=str, default="google/canine-s")
+parser.add_argument('--model_name', type=str, default="gpt2")
 parser.add_argument('--n_epochs', type=int, default=1) ## change to 4
 parser.add_argument('--lr', type=float, default=5e-4)
 parser.add_argument('--eps', type=float, default=1e-8)
@@ -52,8 +53,12 @@ parser.add_argument('--mode', type=str, default="train")
 parser.add_argument('--save_dir', type=str, default=None)
 parser.add_argument('--load_path', type=str, default=None)
 parser.add_argument('--start_epoch', type=int, default=0)
+parser.add_argument('--prompting_method', type=str, default="discrete")
+parser.add_argument('--optim_prefix', type=str, default="yes")
+parser.add_argument('--preseqlen', type=int, default=5)
 
 args = parser.parse_args()
+optim_prefix_bool = True if args.optim_prefix == "yes" else False
 
 LR = args.lr
 TR_SIZE = args.tr_size
@@ -95,17 +100,30 @@ configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False,
                                            pad_token_id=tokenizer.pad_token_id)
 
 # ## load data 
-train_dataset, val_dataset, train_dataloader, test_dataloader = load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME)
+train_dataset, val_dataset, train_dataloader, test_dataloader = load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME) ## change here 
 
 ## load model 
 model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
 model.resize_token_embeddings(len(tokenizer))
 model.to(device)
 
-
+## discrete prompting
+model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
+model.resize_token_embeddings(len(tokenizer))
+model.to(device)
 if args.load_path is not None:
     load_model(model, ckpt_path = args.load_path)
     model.to(device)
+
+## prefix tuning
+if args.prompting_method == "prefix":
+    config = 1
+    model = PrefixTuning.from_pretrained(
+        args.model_name, 
+        config = configuration, 
+        model_gpt2 = model,
+        optim_prefix=optim_prefix_bool,
+        preseqlen=args.preseqlen)
 
 
 ## freeze layers 
