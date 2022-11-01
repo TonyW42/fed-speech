@@ -49,14 +49,13 @@ def train(model, optimizer, train_dataloader, device, EPOCHS, ckpt_dir = None, l
 
       model.zero_grad()
       outputs = model(    batch[0].to(device),
-                        #   labels=batch[0].to(device), 
+                          labels=batch[0].to(device), 
                           attention_mask = batch[1].to(device),
-                          token_type_ids=None
+                          token_type_ids=None,
+                          return_dict = True
                         )
-      loss = outputs[0]  
-      print(outputs)
-      print(loss)
-      batch_loss = loss.item()
+      loss = outputs["loss"]  
+      batch_loss = loss.detach.item()
       total_train_loss += batch_loss
 
       loss.backward()
