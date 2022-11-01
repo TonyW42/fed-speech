@@ -54,6 +54,8 @@ def train(model, optimizer, train_dataloader, device, EPOCHS, ckpt_dir = None, l
                           token_type_ids=None
                         )
       loss = outputs[0]  
+      print(output)
+      print(loss)
       batch_loss = loss.item()
       total_train_loss += batch_loss
 
