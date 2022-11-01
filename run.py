@@ -104,7 +104,7 @@ model.to(device)
 
 
 if args.load_path is not None:
-    model = load_model(model, ckpt_path = args.load_path)
+    load_model(model, ckpt_path = args.load_path)
     model.to(device)
 
 
