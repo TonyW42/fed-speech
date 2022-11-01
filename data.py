@@ -22,7 +22,7 @@ import argparse
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torch.utils.data import random_split
 # from run import TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME 
-def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME, prompt_method):
+def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME, prompt_type):
   ## load statements 
   data = dict()
   root_path = "data/statement"
@@ -115,10 +115,10 @@ def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_N
 
   ## data class for speech 
   class speech_data(Dataset):
-    def __init__(self, data, tokenizer, prompt_method, randomize = True):
+    def __init__(self, data, tokenizer, prompt_type, randomize = True):
       self.tokenizer = tokenizer
       self.data = data
-      self.prompt_method = prompt_method
+      self.prompt_type = prompt_type
 
     def __len__(self):
       return(len(self.data))
@@ -126,15 +126,15 @@ def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_N
     def __getitem__(self, idx):
       description = self.data[idx]["description"]
       text = self.data[idx]["text"]
-      if self.prompt_method == "discrete":
+      if self.prompt_type == "sentence":
         input = SPECIAL_TOKENS["bos_token"] + description + \
                   " Here is an excerpt from the speech: \n" + \
                   SPECIAL_TOKENS["sep_token"] + text + \
                   SPECIAL_TOKENS["eos_token"] 
-      elif self.prompt_method == "prefix":
+      elif self.prompt_type == "word":
         input = ""
         for key in ["consumption", "economic activity", "inflation", "unemployment"]:
-          input += f"{key}: {self.data[idx][key]}"
+          input += f"{key}: {self.data[idx][key]} "
         input += SPECIAL_TOKENS["sep_token"] + text
       input_dict = self.tokenizer(input, truncation=True, max_length = MAXLEN, 
                                   padding = "max_length")

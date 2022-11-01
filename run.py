@@ -54,6 +54,7 @@ parser.add_argument('--save_dir', type=str, default=None)
 parser.add_argument('--load_path', type=str, default=None)
 parser.add_argument('--start_epoch', type=int, default=0)
 parser.add_argument('--prompting_method', type=str, default="discrete")
+parser.add_argument('--prompt_type', type=str, default="sentence")
 parser.add_argument('--optim_prefix', type=str, default="yes")
 parser.add_argument('--preseqlen', type=int, default=5)
 
@@ -100,7 +101,7 @@ configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False,
                                            pad_token_id=tokenizer.pad_token_id)
 
 # ## load data 
-train_dataset, val_dataset, train_dataloader, test_dataloader = load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME, args.prompting_method) ## change here 
+train_dataset, val_dataset, train_dataloader, test_dataloader = load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_NAME, args.prompt_type) ## change here 
 
 ## load model 
 model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
