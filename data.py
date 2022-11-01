@@ -146,7 +146,7 @@ def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_N
   ## load dataset 
   dataset = None 
   if DATA_NAME == "speech":
-      dataset = speech_data(speech, tokenizer)
+      dataset = speech_data(speech, tokenizer, prompt_type)
   if DATA_NAME == "statement":
       dataset = statement_data(short_data, tokenizer)
   if dataset == "None":
