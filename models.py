@@ -41,10 +41,10 @@ class PrefixTuning(GPT2PreTrainedModel):
         #     self.task_mode = 'underspecified'
         #     assert False, 'the task is underspecified'
 
-        if hasattr(config, 'train_weights'):
-            self.train_weights = (config.train_weights == 'yes')
-        else:
-            assert False, "unspecified train weights"
+        # if hasattr(config, 'train_weights'):
+        #     self.train_weights = (config.train_weights == 'yes')
+        # else:
+        #     assert False, "unspecified train weights"
 
         if hasattr(config, 'format_mode'):
             self.format_mode = config.format_mode
