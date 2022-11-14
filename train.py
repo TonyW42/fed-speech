@@ -19,6 +19,8 @@ nltk.download('punkt')
 import statistics
 from sentence_transformers import SentenceTransformer, util
 from utils import load_model, save_model, make_if_not_exists, setup_seed
+import tqdm 
+
 
 ## train model
 def format_time(elapsed):
@@ -39,8 +41,9 @@ def train(model, optimizer, train_dataloader, device, EPOCHS, ckpt_dir = None, l
     model.train()
     
     t0 = time.time()
+    tbar = tqdm(train_dataloader, dynamic_ncols=True)
 
-    for step, batch in enumerate(train_dataloader):
+    for batch in tbar:
       # print(f"step: {step}, number of objects: {len(gc.get_objects())}")
       # print(f"starting epoch {epoch_i+1} batch {step}/{int(train_size/BS)+1}")
       # b_input_ids = batch[0].to(device)
