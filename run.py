@@ -89,7 +89,7 @@ os.environ['TOKENIZERS_PARALLELISM']= 'True'
 tokenizer = AutoTokenizer.from_pretrained(args.model_name, 
                                           bos_token=SPECIAL_TOKENS['bos_token'], 
                                           eos_token=SPECIAL_TOKENS['eos_token'], 
-                                          pad_token=SPECIAL_TOKENS['pad_token'],
+                                        #   pad_token=SPECIAL_TOKENS['pad_token'],
                                           unk_token=SPECIAL_TOKENS['unk_token'],
                                           sep_token=SPECIAL_TOKENS['sep_token'])
 
@@ -101,7 +101,7 @@ configuration = AutoConfig.from_pretrained(args.model_name, output_hidden_states
                                            eos_token_id=tokenizer.eos_token_id,
                                            sep_token_id=tokenizer.sep_token_id,
                                            unk_token_id=tokenizer.unk_token_id,
-                                           pad_token_id=tokenizer.pad_token_id
+                                        #    pad_token_id=tokenizer.pad_token_id
                                            )
 
 ## load model 
