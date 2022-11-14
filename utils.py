@@ -56,3 +56,39 @@ def setup_seed(seed):
 def make_if_not_exists(new_dir): 
     if not os.path.exists(new_dir): 
         os.system('mkdir -p {}'.format(new_dir))
+
+def freeze_gpt_layers(model, UNFREEZE_LAYER):
+  for parameter in model.parameters():
+        parameter.requires_grad = False
+
+  for i, m in enumerate(model.base_model.h):        
+      #Only un-freeze the last n transformer blocks
+      if i+1 > 12 - UNFREEZE_LAYER:
+          for parameter in m.parameters():
+              parameter.requires_grad = True 
+
+  for parameter in model.base_model.ln_f.parameters():        
+      parameter.requires_grad = True
+
+  for parameter in model.lm_head.parameters():        
+      parameter.requires_grad = True
+
+def freeze_bert_layers(model, UNFREEZE_LAYER):
+  for param in model.bert.embeddings.parameters():
+    param.requires_grad = False
+  if UNFREEZE_LAYER != -1:
+    # if freeze_layer_count == -1, we only freeze the embedding layer
+    # otherwise we freeze the first `freeze_layer_count` encoder layers
+    for layer in model.bert.encoder.layer[:UNFREEZE_LAYER]:
+      for param in layer.parameters():
+          param.requires_grad = False
+
+def freeze_roberta_layers(model, UNFREEZE_LAYER):
+  for param in model.roberta.embeddings.parameters():
+    param.requires_grad = False
+  if UNFREEZE_LAYER != -1:
+    # if freeze_layer_count == -1, we only freeze the embedding layer
+    # otherwise we freeze the first `freeze_layer_count` encoder layers
+    for layer in model.roberta.encoder.layer[:UNFREEZE_LAYER]:
+      for param in layer.parameters():
+          param.requires_grad = False

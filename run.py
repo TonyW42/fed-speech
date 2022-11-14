@@ -23,7 +23,7 @@ from transformers import AutoModel, AutoTokenizer, AutoConfig, AutoModelForCausa
 from transformers import GPT2Tokenizer, GPT2LMHeadModel, GPT2Config
 from data import load_data
 from train import train
-from utils import make_if_not_exists, setup_seed, load_model
+from utils import *
 from evaluate_utils import semantic_similarity, macro_bleu_efficient
 import statistics
 from models import *
@@ -130,20 +130,17 @@ if args.prompting_method == "prefix":
 
 if args.prompting_method == "discrete":
 ## freeze layers 
-    for parameter in model.parameters():
-        parameter.requires_grad = False
+    if args.model_name == "gpt2":
+        freeze_gpt_layers(model, UNFREEZE_LAYER)
+    
+    if args.model_name in ["bert-base-cased", "bert-base-uncased"]:
+        freeze_bert_layers(model, UNFREEZE_LAYER)
+    
+    if args.model_name in ["roberta-base", "roberta-large", "xlm-roberta-base"]:
+        freeze_roberta_layers(model, UNFREEZE_LAYER)
 
-    for i, m in enumerate(model.base_model.h):        
-        #Only un-freeze the last n transformer blocks
-        if i+1 > 12 - UNFREEZE_LAYER:
-            for parameter in m.parameters():
-                parameter.requires_grad = True 
 
-    for parameter in model.base_model.ln_f.parameters():        
-        parameter.requires_grad = True
-
-    for parameter in model.lm_head.parameters():        
-        parameter.requires_grad = True
+    
 
 ## load optimizer 
 optimizer = torch.optim.AdamW(model.parameters(), lr = LR, eps = EPS)
