@@ -19,7 +19,7 @@ nltk.download('punkt')
 import statistics
 from sentence_transformers import SentenceTransformer, util
 from utils import load_model, save_model, make_if_not_exists, setup_seed
-import tqdm 
+from tqdm import tqdm 
 
 
 ## train model
