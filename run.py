@@ -86,7 +86,7 @@ DATA_NAME = args.data
 os.environ['TOKENIZERS_PARALLELISM']= 'True'
 
 ## load tokenizer
-tokenizer = GPT2Tokenizer.from_pretrained('gpt2', 
+tokenizer = AutoTokenizer.from_pretrained('gpt2', 
                                           bos_token=SPECIAL_TOKENS['bos_token'], 
                                           eos_token=SPECIAL_TOKENS['eos_token'], 
                                           pad_token=SPECIAL_TOKENS['pad_token'],
@@ -96,7 +96,7 @@ tokenizer = GPT2Tokenizer.from_pretrained('gpt2',
 
 
 ## load model
-configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False, 
+configuration = AutoConfig.from_pretrained('gpt2', output_hidden_states=False, 
                                            bos_token_id=tokenizer.bos_token_id,
                                            eos_token_id=tokenizer.eos_token_id,
                                            sep_token_id=tokenizer.sep_token_id,
@@ -105,7 +105,7 @@ configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False,
                                            )
 
 ## load model 
-model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
+model = AutoModelForCausalLM.from_pretrained("gpt2", config=configuration)
 model.resize_token_embeddings(len(tokenizer))
 model.to(device)
 
