@@ -97,7 +97,11 @@ def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_N
       self.tokenizer = tokenizer
       self.input_ids = []
       self.attn_masks = []
+      self.description = []
+      self.content = []
       for txt in self.text:
+        self.description.append(txt[0])
+        self.content.append(txt[1:len(txt)])
         input = SPECIAL_TOKENS["bos_token"] + txt[0] + \
                 SPECIAL_TOKENS["sep_token"] + txt[1:len(txt)] + \
                 SPECIAL_TOKENS["eos_token"] ## added
@@ -111,7 +115,9 @@ def load_data(TR_SIZE, tokenizer, MAXLEN, SPECIAL_TOKENS, BS, NUM_WORKER, DATA_N
       return(len(self.input_ids))
     
     def __getitem__(self, idx):
-      return self.input_ids[idx], self.attn_masks[idx] 
+      description = self.description[idx]
+      content = self.content[idx]
+      return self.input_ids[idx], self.attn_masks[idx], description, content
 
   ## data class for speech 
   class speech_data(Dataset):
