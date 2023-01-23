@@ -4,6 +4,9 @@ import pandas as pd
 import transformers 
 from transformers import AutoModel, AutoTokenizer, get_scheduler
 from forecast_model import *
+from forecast_data import *
+from torch.utils.data import Dataset,DataLoader, RandomSampler, \
+                             SequentialSampler, random_split
 
 
 
@@ -14,8 +17,8 @@ def train(args):
     model = forecast_with_text(backbone, args)
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 
-    ## get data 
-    trainloader, devloader, testloader = None, None, None
+    ## get data
+    trainloader, devloader, testloader = get_data(tokenizer, args)
 
     ## get optimizer
     ## NOTE: freeze backbone
