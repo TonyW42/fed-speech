@@ -1,7 +1,7 @@
 import torch 
 import numpy as np
 from torch import nn
-from template import *
+from forecast.template import *
 
 class forecast_with_text(nn.Module):
     def __init__(self, backbone, args):
@@ -13,10 +13,9 @@ class forecast_with_text(nn.Module):
     def forward(self, data):
         encoded = self.backbone(input_ids = data["input_ids"].to(self.args.device),
                                 attention_mask = data["attn_mask"].to(self.args.device))
-        hidden_state = encoded["last_hidden_state"]
-        ## TODO: extract CLS token 
-        CLS_encoded = None
+        CLS_encoded = encoded["pooler_output"]
         pred = self.lin(CLS_encoded)
+        ## TODO: add activation and more fancy stuff 
         return pred
 
 class forecast_trainer(BaseEstimator):
