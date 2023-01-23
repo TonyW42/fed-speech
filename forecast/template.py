@@ -185,42 +185,7 @@ class BaseEstimator(object):
                 self.logger.info('[CHECKPOINT]\t{}'.format(checkpoint_path))
 
     def _eval(self, evalloader): 
-        self.model.eval()
-        tbar = tqdm(evalloader, dynamic_ncols=True)
-        eval_loss = []
-        ys = []
-        preds = []
-        for data in tbar: 
-            loss, logits_dict, y = self.step(data)   ## y: [bs, seq_len]
-            logit_word = logits_dict[self.args.word_model]
-            prob = None ## softmax logit_word, [bs, seq_len, num_label] 
-            pred = torch.argmax(prob, dim = -1) ## predicted, [bs, seq_len]
-            if self.mode == 'dev': 
-                tbar.set_description('dev_loss - {:.4f}'.format(loss))
-                eval_loss.append(loss)
-                ys.append(y)
-            preds.append(pred) ## use pred for F1 and change how you append 
-        loss = np.mean(eval_loss).item() if self.mode == 'dev' else None
-        ys = np.concatenate(ys, axis=0) if self.mode == 'dev' else None
-        probs = np.concatenate(probs, axis=0)
-        if self.mode == 'dev': 
-            macro_auc = roc_auc_score(ys, probs, average='macro')
-            micro_auc = roc_auc_score(ys, probs, average='micro')
-            if self.writer is not None: 
-                self.writer.add_scalar('dev/loss', loss, self.dev_step)
-                self.writer.add_scalar('dev/macro/auc', macro_auc, self.dev_step)
-                self.writer.add_scalar('dev/micro/auc', micro_auc, self.dev_step)
-                if self.pred_thold is not None: 
-                    yhats = (probs > self.pred_thold).astype(int)
-                    macros = precision_recall_fscore_support(ys, yhats, average='macro')
-                    self.writer.add_scalar('dev/macro/precision', macros[0], self.dev_step)
-                    self.writer.add_scalar('dev/macro/recall', macros[1], self.dev_step)
-                    self.writer.add_scalar('dev/macro/f1', macros[2], self.dev_step)
-                    micros = precision_recall_fscore_support(ys, yhats, average='micro')
-                    self.writer.add_scalar('dev/micro/precision', micros[0], self.dev_step)
-                    self.writer.add_scalar('dev/micro/recall', micros[1], self.dev_step)
-                    self.writer.add_scalar('dev/micro/f1', micros[2], self.dev_step)
-        return probs, ys
+        raise NotImplementedError
 
     def dev(self, devloader): 
         self.mode = 'dev'
