@@ -1,14 +1,21 @@
 import pandas as pd
 import numpy as np
 import torch 
+from datetime import datetime, timedelta
+from fredapi import Fred
 from torch.utils.data import Dataset,DataLoader, RandomSampler, \
                              SequentialSampler, random_split
 
 class forecast_data(Dataset):
     def __init__(self, speech_df, tokenizer, randomize = True):
+        # fred = Fred(api_key='99c16d0eb16121bf66ccf5a4965f974c')
+        self.sp500 = pd.read_csv("data/sp500.csv")
+        close = self.sp500["Close"]
+        self.sp500["close_d"] = [np.nan].extend([close[i+1] - close[i] for i in range(len(close)-1)])
+        self.sp500["close_d_pct"] = [np.nan].extend([(close[i+1] - close[i])/close[i] for i in range(len(close)-1)])
         speech_df["rate"] = np.nan
         speech_df["rate_change"] = np.nan
-        speech_df["rate_change_tmr"] = np.nan
+        # speech_df["rate_change_tmr"] = np.nan
         speech_df["rate_change_l1"] = np.nan
         speech_df["rate_change_l2"] = np.nan
         speech_df["rate_change_l3"] = np.nan
@@ -16,13 +23,30 @@ class forecast_data(Dataset):
         for i in range(0, len(speech_df)):
             ## TODO: give sp500 value 
             date = self.speech_df["date"][i]
-            speech_df["rate"][i] = np.nan
-            speech_df["rate_change"][i] = np.nan
-            speech_df["rate_change_tmr"][i] = np.nan
-            speech_df["rate_change_l1"][i] = np.nan
-            speech_df["rate_change_l2"][i] = np.nan
-            speech_df["rate_change_l3"][i] = np.nan
-            speech_df["rate_change_l4"][i] = np.nan
+            date = datetime.strptime(str(date), format="%Y%m%d")
+            date_tmp = date
+            while date_tmp.strftime("%m/%d/%y") not in self.sp500["Date"]:
+                date_tmp += datetime.timedelta(days=1)
+            speech_df["rate"][i] = self.sp500["close_d"][
+                [i for i in range(len(close)) if self.sp500["Date"] == date_tmp.strftime("%m/%d/%y")][0]
+                ]
+            # speech_df["rate_change"][i] = np.nan
+            # speech_df["rate_change_tmr"][i] = np.nan
+            lags = []
+            date_tmp = date - datetime.timedelta(days=1)
+            while len(lags) < 4:
+                try:
+                    lags.append(self.sp500["close_d"][
+                        [i for i in range(len(close)) if self.sp500["Date"] == date_tmp.strftime("%m/%d/%y")][0]
+                        ])
+                    date_tmp -= datetime.timedelta(days=1)
+                except:
+                    date_tmp -= datetime.timedelta(days=1)
+
+            speech_df["rate_change_l1"][i] = lags[0]
+            speech_df["rate_change_l2"][i] = lags[1]
+            speech_df["rate_change_l3"][i] = lags[2]
+            speech_df["rate_change_l4"][i] = lags[3]
 
         self.speech_df = speech_df
         self.tokenizer = tokenizer
