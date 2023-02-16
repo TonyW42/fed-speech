@@ -14,6 +14,7 @@ def train(args):
 
     ## get model 
     backbone = AutoModel.from_pretrained(args.model_name)
+    args.emb_size = backbone.config.hidden_size
     model = forecast_with_text(backbone, args)
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 

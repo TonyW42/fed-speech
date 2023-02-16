@@ -1,7 +1,7 @@
 import torch 
 import numpy as np
 from torch import nn
-from forecast.template import *
+from template import *
 import torch.nn.functional as F
 
 class forecast_with_text(nn.Module):
