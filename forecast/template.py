@@ -153,7 +153,7 @@ class BaseEstimator(object):
         for data in tbar: 
             ret_step = self.step(data)
             loss = ret_step['loss']
-            y = ret_step['label']
+            # y = ret_step['label']
             # prob = ret_step
             self.train_step += 1
             tbar.set_description('train_loss - {:.4f}'.format(loss))

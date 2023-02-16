@@ -34,8 +34,17 @@ parser.add_argument('--save_dir', type=str, default=None)
 parser.add_argument('--load_path', type=str, default=None)
 parser.add_argument('--loss_fn', type=str, default="MSE")
 parser.add_argument('--num_lags', type=int, default=0)
+parser.add_argument('--device', type=str, default=None)
+
+parser.add_argument('--dataset_dir', type=str, default=None)
 
 args = parser.parse_args()
+
+if torch.cuda.is_available():
+    args.device = "cuda"
+else:
+    args.device = "cpu"
+
 
 
 # os.environ['TOKENIZERS_PARALLELISM']= 'True'
