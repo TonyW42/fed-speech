@@ -36,7 +36,7 @@ parser.add_argument('--loss_fn', type=str, default="MSE")
 parser.add_argument('--num_lags', type=int, default=0)
 parser.add_argument('--device', type=str, default=None)
 
-parser.add_argument('--dataset_dir', type=str, default=None)
+parser.add_argument('--load_tokenized_data', type=str, default = "false")
 
 args = parser.parse_args()
 

@@ -13,7 +13,7 @@ class forecast_data(Dataset):
         sp500 = pd.read_csv("data/sp500.csv")
         sp500.columns = [s.strip() for s in sp500.columns] ## strip white spaces
         close = sp500["Close"]
-        close_d = [(close[i] - close[i+1])/close[i+1] for i in range(len(close)-1)]
+        close_d = [100*(close[i] - close[i+1])/close[i+1] for i in range(len(close)-1)]
         close_d.append(np.nan)
         sp500["close_d"] = close_d
         
@@ -71,7 +71,7 @@ class forecast_data(Dataset):
         return len(self.text)
     
     def __getitem__(self, i):
-        tokenized = self.tokenizer(self.text[i], truncation=True)
+        tokenized = self.tokenizer(self.text[i], truncation=True, padding ="max_length")
 
         tokenized["rate_change"] = self.rate_change[i]
         tokenized["rate_change_lags"] = [self.rate_change_l1[i], self.rate_change_l2[i], self.rate_change_l3[i], self.rate_change_l4[i]]
@@ -109,6 +109,10 @@ def get_data(tokenizer, args):
       test_dataset = datasets["test"]
       dev_dataset = datasets["dev"]
       train_dataset = datasets["train"]
+
+      train_dataset.args = args
+      dev_dataset.args = args
+      test_dataset.args = args
 
 
     train_dataloader = DataLoader(

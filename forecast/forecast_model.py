@@ -9,7 +9,9 @@ class forecast_with_text(nn.Module):
         super().__init__()
         self.args = args
         self.backbone = backbone
-        self.lin = nn.Linear(args.emb_size + args.num_lags, 1)
+        self.lin1 = nn.Linear(args.emb_size + args.num_lags, args.emb_size + args.num_lags)
+        self.lin2 = nn.Linear(args.emb_size + args.num_lags, 1)
+        self.act = nn.GELU()
     
     def forward(self, data): 
         # print(self.args.device)
@@ -18,12 +20,14 @@ class forecast_with_text(nn.Module):
         CLS_encoded = encoded["pooler_output"]
 
         if self.args.num_lags > 0:
-            CLS_encoded = torch.cat(CLS_encoded, data["rate_change_lags"], dim = -1)
+            CLS_encoded = torch.cat((CLS_encoded, data["rate_change_lags"].to(self.args.device)), dim = -1)
             ## NOTE: check the correctness of that 
-        pred = self.lin(CLS_encoded)
+        pred = self.lin1(CLS_encoded)
+
 
         ## TODO: add activation and more fancy stuff 
-        # print(pred)
+        pred = self.act(pred)
+        pred = self.lin2(pred)
         return pred
 
 class forecast_trainer(BaseEstimator):
@@ -34,13 +38,15 @@ class forecast_trainer(BaseEstimator):
         if type(data["input_ids"]) is list: 
           data["input_ids"] = torch.tensor([t.tolist() for t in data["input_ids"]]).transpose(0, 1)
           data["attn_mask"] = torch.tensor([t.tolist() for t in data["attn_mask"]]).transpose(0, 1)
-          data["rate_change_lags"] = torch.tensor([t.tolist() for t in data["rate_change_lags"]]).transpose(0, 1)
+          if self.cfg.num_lags > 0:
+            data["rate_change_lags"] = torch.tensor([t.tolist() for t in data["rate_change_lags"]]).transpose(0, 1)
 
       
         pred = self.model(data)
         ## TODO: change X here
         loss = self.criterion(pred.float(), data["rate_change"].to(self.cfg.device).float())
         if self.mode == "train":
+            self.model.train()
             loss.backward()
             self.optimizer.step()
             if self.scheduler is not None:

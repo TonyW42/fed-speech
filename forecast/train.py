@@ -24,6 +24,7 @@ def train(args):
     ## get optimizer
     ## NOTE: freeze backbone
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr) ## NOTE: weight decay
+    ## optimizer = torch.optim.AdamW([p for n, p in model.named_parameters() if "backbone" in n], lr=args.lr)  ## NOTE: weight decay
     num_training_steps = args.n_epochs * len(trainloader)
     scheduler = get_scheduler(
         "linear",
