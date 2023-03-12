@@ -168,12 +168,12 @@ class BaseEstimator(object):
                     self.writer.add_scalar('train/micro/f1', micros[2], self.train_step)
         eval_result = dict()
         if devloader is not None: 
-            print("============= dev set performance ==============")
+            # print("============= dev set performance ==============")
             _, _, dev_mse, dev_mae = self.dev(devloader)
             eval_result["dev_mse"] = dev_mse
             eval_result["dev_mae"] = dev_mae
         if testloader is not None:
-            print("============= test set performance ==============")
+            # print("============= test set performance ==============")
             _, _, test_mse, test_mae = self.dev(testloader)
             eval_result["test_mse"] = test_mse
             eval_result["test_mae"] = test_mae
@@ -209,8 +209,10 @@ class BaseEstimator(object):
         min_mse = test_mse[min_mse_index]
         min_mae = test_mae[min_mae_index]
 
-        print(f"========== best MSE: {min_mse} =============")
-        print(f"========== best MAE: {min_mae} =============")
+        print("==================================================")
+        print(f"---------- best MSE: {min_mse} ----------")
+        print(f"---------- best MAE: {min_mae} ----------")
+        print("==================================================")
 
 
 
