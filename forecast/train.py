@@ -48,4 +48,4 @@ def train(args):
 
     ## train 
     if args.mode == "train":
-        trainer.train(args, trainloader, testloader)
+        trainer.train(args, trainloader, devloader, testloader)

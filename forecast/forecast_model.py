@@ -76,7 +76,7 @@ class forecast_trainer(BaseEstimator):
         MAEloss = mae_loss(ys, preds)
         print(f"==============The evaluation MSE loss is {MSEloss}==============")
         print(f"==============The evaluation MAE loss is {MAEloss}==============")
-        return preds, ys
+        return preds, ys, MSEloss, MAEloss
 
 
 def mse_loss(pred, ref):

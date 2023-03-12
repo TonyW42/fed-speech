@@ -166,27 +166,53 @@ class BaseEstimator(object):
                     self.writer.add_scalar('train/micro/precision', micros[0], self.train_step)
                     self.writer.add_scalar('train/micro/recall', micros[1], self.train_step)
                     self.writer.add_scalar('train/micro/f1', micros[2], self.train_step)
+        eval_result = dict()
         if devloader is not None: 
             print("============= dev set performance ==============")
-            self.dev(devloader)
+            _, _, dev_mse, dev_mae = self.dev(devloader)
+            eval_result["dev_mse"] = dev_mse
+            eval_result["dev_mae"] = dev_mae
         if testloader is not None:
             print("============= test set performance ==============")
-            self.dev(testloader)
+            _, _, test_mse, test_mae = self.dev(testloader)
+            eval_result["test_mse"] = test_mse
+            eval_result["test_mae"] = test_mae
+        return eval_result
+        
 
     def train(self, cfg, trainloader, devloader=None, testloader=None): 
         self.mode = 'train'
         assert self.optimizer is not None, 'Optimizer is required'
         assert hasattr(cfg, 'output_dir'), 'Output directory must be specified'
         make_if_not_exists(cfg.output_dir)
+        dev_mse = []
+        dev_mae = []
+        test_mse = []
+        test_mae = []
         for i in range(cfg.n_epochs): 
             print(f"Training epoch {i}")
-            self._train_epoch(trainloader, devloader, testloader)
+            eval_result = self._train_epoch(trainloader, devloader, testloader)
+            dev_mse.append(eval_result["dev_mse"])
+            dev_mae.append(eval_result["dev_mae"])
+            test_mse.append(eval_result["test_mse"])
+            test_mae.append(eval_result["test_mae"])
+            
             self.epoch += 1
             checkpoint_path = os.path.join(cfg.output_dir, '{}.pt'.format(datetime.now().strftime('%m-%d_%H-%M')))
             # if cfg.save.lower() == "true": 
             #     self.save(checkpoint_path)
             # if self.logger is not None: 
             #     self.logger.info('[CHECKPOINT]\t{}'.format(checkpoint_path))
+        min_mse_index = np.argmin(dev_mse)
+        min_mae_index = np.argmin(dev_mae)
+
+        min_mse = test_mse[min_mse_index]
+        min_mae = test_mae[min_mae_index]
+
+        print(f"========== best MSE: {min_mse} =============")
+        print(f"========== best MAE: {min_mae} =============")
+
+
 
     def _eval(self, evalloader): 
         raise NotImplementedError
