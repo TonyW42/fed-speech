@@ -14,7 +14,7 @@ class forecast_data(Dataset):
         sp500.columns = [s.strip() for s in sp500.columns] ## strip white spaces
         close = sp500["Close"]
         Open = sp500["Open"]
-        close_d = [100*(close[i] - Open[i])/close[i+1] for i in range(len(close))]
+        close_d = [100*(np.log(close[i]) - np.log(Open[i])) for i in range(len(close))]
         # close_d.append(np.nan)
         sp500["close_d"] = close_d
         
