@@ -10,7 +10,7 @@ class forecast_data(Dataset):
     def __init__(self, speech_df, tokenizer, args, randomize = True):
         self.args = args
         # fred = Fred(api_key='99c16d0eb16121bf66ccf5a4965f974c')
-        sp500 = pd.read_csv("data/sp500.csv")
+        sp500 = pd.read_csv("data/sp500-2.csv")
         sp500.columns = [s.strip() for s in sp500.columns] ## strip white spaces
         close = sp500["Close"]
         Open = sp500["Open"]
@@ -67,6 +67,9 @@ class forecast_data(Dataset):
         self.rate_change_l4 = rate_change_l4
 
         self.tokenizer = tokenizer
+
+        print(f"Naive MSE: {np.mean(np.square(self.rate_change))}")
+        print(f"Naive MAE: {np.mean(np.abs(self.rate_change))}")
     
     def __len__(self):
         return len(self.text)
