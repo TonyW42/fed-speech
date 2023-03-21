@@ -22,12 +22,12 @@ class forecast_with_text(nn.Module):
         if self.args.num_lags > 0:
             CLS_encoded = torch.cat((CLS_encoded, data["rate_change_lags"].to(self.args.device)), dim = -1)
             ## NOTE: check the correctness of that 
-        pred = self.lin1(CLS_encoded)
+        pred = self.lin2(CLS_encoded)
 
 
         ## TODO: add activation and more fancy stuff 
-        pred = self.act(pred)
-        pred = self.lin2(pred)
+        # pred = self.act(pred)
+        # pred = self.lin2(pred)
         return pred
 
 class forecast_trainer(BaseEstimator):

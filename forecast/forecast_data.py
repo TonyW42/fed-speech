@@ -13,8 +13,9 @@ class forecast_data(Dataset):
         sp500 = pd.read_csv("data/sp500.csv")
         sp500.columns = [s.strip() for s in sp500.columns] ## strip white spaces
         close = sp500["Close"]
-        close_d = [100*(close[i] - close[i+1])/close[i+1] for i in range(len(close)-1)]
-        close_d.append(np.nan)
+        Open = sp500["Open"]
+        close_d = [100*(close[i] - Open[i])/close[i+1] for i in range(len(close))]
+        # close_d.append(np.nan)
         sp500["close_d"] = close_d
         
         # self.sp500["close_d_pct"] = [np.nan].extend([(close[i+1] - close[i])/close[i] for i in range(len(close)-1)])

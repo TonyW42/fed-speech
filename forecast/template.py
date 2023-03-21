@@ -209,6 +209,7 @@ class BaseEstimator(object):
         min_mse = test_mse[min_mse_index]
         min_mae = test_mae[min_mae_index]
 
+        print(f"==========Model: {cfg.model}    #lags: {cfg.num_lags}==========")
         print("==================================================")
         print(f"---------- best MSE: {min_mse} ----------")
         print(f"---------- best MAE: {min_mae} ----------")
