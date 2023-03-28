@@ -37,6 +37,8 @@ parser.add_argument('--num_lags', type=int, default=0)
 parser.add_argument('--device', type=str, default=None)
 
 parser.add_argument('--load_tokenized_data', type=str, default = "false")
+parser.add_argument('--data', type=str, default = "sp500")
+
 
 args = parser.parse_args()
 

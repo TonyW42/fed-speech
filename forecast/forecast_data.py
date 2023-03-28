@@ -10,13 +10,18 @@ class forecast_data(Dataset):
     def __init__(self, speech_df, tokenizer, args, randomize = True):
         self.args = args
         # fred = Fred(api_key='99c16d0eb16121bf66ccf5a4965f974c')
-        sp500 = pd.read_csv("data/sp500-2.csv")
-        sp500.columns = [s.strip() for s in sp500.columns] ## strip white spaces
-        close = sp500["Close"]
-        Open = sp500["Open"]
-        close_d = [100*(np.log(close[i]) - np.log(Open[i])) for i in range(len(close))]
-        # close_d.append(np.nan)
-        sp500["close_d"] = close_d
+        if args.data == "sp500":
+            sp500 = pd.read_csv("data/sp500-2.csv")
+            sp500.columns = [s.strip() for s in sp500.columns] ## strip white spaces
+            close = sp500["Close"]
+            Open = sp500["Open"]
+            close_d = [100*(np.log(close[i]) - np.log(Open[i])) for i in range(len(close))]
+            # close_d.append(np.nan)
+            sp500["close_d"] = close_d
+        if args.data == "T10Y2Y":
+            sp500 = pd.read_csv("data/T10Y2Y.csv")
+            sp500["close_d"] = sp500["1D_PCH"]
+
         
         # self.sp500["close_d_pct"] = [np.nan].extend([(close[i+1] - close[i])/close[i] for i in range(len(close)-1)])
         # rate = np.empty(len(speech_df))
@@ -30,9 +35,9 @@ class forecast_data(Dataset):
             date = speech_df["date"][i]
             date = datetime.strptime(str(date), "%Y%m%d")
             date_tmp = date
-            while date_tmp.strftime("%m/%d/%y") not in sp500["Date"].values:
+            while date_tmp.strftime("%m/%d/%Y") not in sp500["Date"].values:
                 date_tmp += timedelta(days=1)
-            row_number = [i for i in range(len(close)) if sp500["Date"][i] == date_tmp.strftime("%m/%d/%y")][0]
+            row_number = [i for i in range(len(close)) if sp500["Date"][i] == date_tmp.strftime("%m/%d/%Y")][0]
             rate_tmp = sp500["close_d"].values[row_number]
             # print(rate_tmp)
             rate_change[i] = rate_tmp
