@@ -21,6 +21,8 @@ class forecast_data(Dataset):
         if args.data == "T10Y2Y":
             sp500 = pd.read_csv("data/T10Y2Y.csv")
             sp500["close_d"] = sp500["1D_PCH"]
+            sp500["close"] = sp500["PCH"]
+            sp500 = sp500.iloc[::-1]
 
         
         # self.sp500["close_d_pct"] = [np.nan].extend([(close[i+1] - close[i])/close[i] for i in range(len(close)-1)])
@@ -37,7 +39,7 @@ class forecast_data(Dataset):
             date_tmp = date
             while date_tmp.strftime("%m/%d/%Y") not in sp500["Date"].values:
                 date_tmp += timedelta(days=1)
-            row_number = [i for i in range(len(close)) if sp500["Date"][i] == date_tmp.strftime("%m/%d/%Y")][0]
+            row_number = [i for i in range(len(sp500["close"])) if sp500["Date"][i] == date_tmp.strftime("%m/%d/%Y")][0]
             rate_tmp = sp500["close_d"].values[row_number]
             # print(rate_tmp)
             rate_change[i] = rate_tmp
