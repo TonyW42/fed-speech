@@ -18,6 +18,7 @@ class forecast_data(Dataset):
             close_d = [100*(np.log(close[i]) - np.log(Open[i])) for i in range(len(close))]
             # close_d.append(np.nan)
             sp500["close_d"] = close_d
+            sp500["close"] = close
         if args.data == "T10Y2Y":
             sp500 = pd.read_csv("data/T10Y2Y.csv", na_values=[".", "nan"])
             sp500["close_d"] = sp500["1D_PCH"]
@@ -158,8 +159,8 @@ def get_oos_data(tokenizer):
     lag_4 = 1
     tokenized = tokenizer(text)
     return {
-        "input_ids" : tokenized["input_ids"],
-        "attn_mask" : tokenized["attention_mask"],
-        "rate_change_lags": [lag_1, lag_2, lag_3, lag_4]
+        "input_ids" : torch.tensor([tokenized["input_ids"]]),
+        "attn_mask" : torch.tensor([tokenized["attention_mask"]]),
+        "rate_change_lags": torch.tensor([[lag_1, lag_2, lag_3, lag_4]])
     }
 
