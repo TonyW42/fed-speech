@@ -46,6 +46,8 @@ def train(args):
         logger = logger 
     )
 
+    oos_data = get_oos_data(tokenizer)
+
     ## train 
     if args.mode == "train":
-        trainer.train(args, trainloader, devloader, testloader)
+        trainer.train(args, trainloader, devloader, testloader, oos_data)

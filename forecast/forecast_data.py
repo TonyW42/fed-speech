@@ -19,10 +19,12 @@ class forecast_data(Dataset):
             # close_d.append(np.nan)
             sp500["close_d"] = close_d
         if args.data == "T10Y2Y":
-            sp500 = pd.read_csv("data/T10Y2Y.csv")
+            sp500 = pd.read_csv("data/T10Y2Y.csv", na_values=[".", "nan"])
             sp500["close_d"] = sp500["1D_PCH"]
             sp500["close"] = sp500["PCH"]
             sp500 = sp500.iloc[::-1]
+            sp500 = sp500[sp500['close_d'].notnull()]
+            sp500 = sp500.reset_index()
 
         
         # self.sp500["close_d_pct"] = [np.nan].extend([(close[i+1] - close[i])/close[i] for i in range(len(close)-1)])
@@ -147,4 +149,17 @@ def get_data(tokenizer, args):
               # num_workers = NUM_WORKER 
           )
     return train_dataloader, dev_dataloader, test_dataloader
+
+def get_oos_data(tokenizer):
+    text = ""
+    lag_1 = 1
+    lag_2 = 1
+    lag_3 = 1
+    lag_4 = 1
+    tokenized = tokenizer(text)
+    return {
+        "input_ids" : tokenized["input_ids"],
+        "attn_mask" : tokenized["attention_mask"],
+        "rate_change_lags": [lag_1, lag_2, lag_3, lag_4]
+    }
 

@@ -180,7 +180,7 @@ class BaseEstimator(object):
         return eval_result
         
 
-    def train(self, cfg, trainloader, devloader=None, testloader=None): 
+    def train(self, cfg, trainloader, devloader=None, testloader=None, oos_data = None): 
         self.mode = 'train'
         assert self.optimizer is not None, 'Optimizer is required'
         assert hasattr(cfg, 'output_dir'), 'Output directory must be specified'
@@ -189,6 +189,7 @@ class BaseEstimator(object):
         dev_mae = []
         test_mse = []
         test_mae = []
+        oos_forecast = []
         for i in range(cfg.n_epochs): 
             print(f"Training epoch {i}")
             eval_result = self._train_epoch(trainloader, devloader, testloader)
@@ -196,6 +197,9 @@ class BaseEstimator(object):
             dev_mae.append(eval_result["dev_mae"])
             test_mse.append(eval_result["test_mse"])
             test_mae.append(eval_result["test_mae"])
+
+            oos_out = self.model(oos_data)
+            oos_forecast.append(float(oos_out))
             
             self.epoch += 1
             checkpoint_path = os.path.join(cfg.output_dir, '{}.pt'.format(datetime.now().strftime('%m-%d_%H-%M')))
@@ -208,12 +212,15 @@ class BaseEstimator(object):
 
         min_mse = test_mse[min_mse_index]
         min_mae = test_mae[min_mae_index]
+        min_oos = oos_forecast[min_mse_index]
 
         print(f"==========Model: {cfg.model_name}    #lags: {cfg.num_lags}==========")
         print("==================================================")
         print(f"---------- best MSE: {min_mse} ----------")
         print(f"---------- best MAE: {min_mae} ----------")
         print("==================================================")
+        print(f"---------- OOS forecast: {min_oos} ----------")
+        
 
 
 
