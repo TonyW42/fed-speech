@@ -157,7 +157,7 @@ def get_oos_data(tokenizer):
     lag_2 = 1
     lag_3 = 1
     lag_4 = 1
-    tokenized = tokenizer(text)
+    tokenized = tokenizer(text, truncation=True)
     return {
         "input_ids" : torch.tensor([tokenized["input_ids"]]),
         "attn_mask" : torch.tensor([tokenized["attention_mask"]]),
